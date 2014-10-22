@@ -1,0 +1,276 @@
+<!Doctype html>
+<html ng-app="customDirective">
+	<head>
+		<title>Custom Directive</title>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.3/angular.min.js"></script>
+		<script src="jquery-ui-1.10.3/jquery-1.9.1.js"></script>
+		<style>
+		
+			.displayList
+			{
+				padding-left: 116px;
+			}
+			.ulstyle
+			{
+				/*display:inline;For outerwidth*/
+				padding-left:0px;
+			}
+			.listStyle
+			{
+				background: #EAEAEA;
+				margin-left: 10px;
+				margin-right: 10px;
+				float: left;
+				padding: 10px;
+				width: 16px;
+				list-style-type: none;
+				/*background:#EAEAEA;
+				display:inline;
+				margin:10px;
+				padding:10px;
+				width:30px;*/
+			}
+			.divStyle
+			{
+				float: left;
+				border: 1px solid green;
+				width: 168px;
+				height: 41px;
+				background: pink;
+				margin-left: 10px;
+				margin-right: 10px;
+				overflow: hidden;
+				
+			}
+			.prevDiv{
+				float:left;
+				padding-top: 9px;
+			}
+			.nextDiv{
+				float:left;
+				padding-top: 9px;
+			}
+			.outerDiv
+			{
+				display:inline-block;
+				
+			}
+		</style>
+		<script>
+			var app = angular.module('customDirective', []);
+			app.controller('paginateCtrl', function($scope) {
+				console.log("Inside controller");
+			
+				$scope.listItems=[
+				'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','1','2','3','4','5','6','7','8','9','10','11','12','1','2','3','4','5','6','7','8','9','10','11','12'
+				];
+				
+				$scope.pageSize=4;
+				console.log("Page size defined is:"+$scope.pageSize);
+			  
+			});
+			
+			app.directive('ngPaginate', function () {
+				return {
+				  restrict: 'A',
+				 		
+					template:'<div class="outerDiv">'+
+								
+								'<div class="prevDiv"><input type="button" class="button1" ng-click="prev()" value="<<"></input></div>'
+				
+								+'<div class="divStyle">'
+								+'<ul class="ulstyle">'
+								+'<li class="listStyle" ng-repeat="i in numButtons" ng-click="handleClick($index)">{{i}}</li>'
+								+'</ul>'
+								+'</div>'
+								
+								+'<div class="nextDiv"><input type="button" class="button2" ng-click="next()" value=">>"></input></div>'	
+								+'</div>'
+								
+								
+									,
+				  link: function (scope, elem, attrs) {
+					console.log("Inside pagination directive");
+					console.log("List items are:"+scope.listItems);
+					console.log("Length of list items is :"+scope.listItems.length);
+					
+					scope.noOfButton=scope.listItems.length/scope.pageSize;
+					
+					console.log("No of buttons for pagination:"+scope.noOfButton);
+					
+					scope.numButtons=[];
+					scope.pageElement=[];
+					
+					scope.counter=0;
+					scope.counterPrev=0;
+					scope.mleft=0;
+					var index=0;
+					
+					//scope.chosenList=[scope.listItems[0],scope.listItems[1],scope.listItems[2],scope.listItems[3]];
+					scope.chosenList=[];
+					for (var i=0;i<scope.pageSize;i++)
+					{
+						scope.chosenList[i]=scope.listItems[i];
+					}
+					
+						if(scope.counter==0)
+							{
+								console.log("Inside last prev turn");
+								$(".button1").prop("disabled",true);
+								$(".button1").css("background","rgb(189, 183, 183)");
+							}
+							else
+							{
+								$(".button1").prop("disabled",false);
+								$(".button1").css("background","#EAEAEA");
+							}
+					
+					
+					for (var i=0;i<scope.noOfButton;i++)
+					{
+						scope.numButtons[i]=i+1;
+					}
+					
+					
+					scope.handleClick = function(index) {
+					
+						console.log("clicked index value is:"+index);
+
+						for(var i=0;i<scope.noOfButton;i++)
+						{
+							
+							scope.pageElement[i]=[];
+							
+							for(var j=0;j<scope.pageSize;j++)
+							{
+								
+								scope.pageElement[i][j]=scope.listItems[(scope.pageSize*i)+j];
+							}
+						}
+						
+						
+						scope.callingList(index);
+					
+					}
+					
+					scope.callingList=function(index){
+						var index=index;
+						//scope.chosenList=[];
+						for (var k=0;k<scope.noOfButton;k++)
+						{
+							
+							if(scope.numButtons[k]==(index+1))
+							{
+							
+								console.log("Page array is:");
+								console.log("clicked event is:"+$(event.target));
+								//$(".listStyle").css("background","yellow");
+								for (var j=0;j<scope.pageSize;j++)
+								{
+									
+									console.log(scope.pageElement[k][j]);
+									scope.chosenList[j]=scope.pageElement[k][j];
+								}
+								
+							}
+						}
+					}
+					
+					scope.prev=function(){
+					
+						console.log("Inside prev function");
+						console.log("Counter value inside prev is:" +scope.counter);
+						
+						$(".button2").prop("disabled",false);
+						$(".button2").css("background","#EAEAEA");
+						
+						if((scope.counter==0)||(scope.counter>(3-scope.noOfButton)))
+						{
+							
+							scope.counter=scope.counter-1;
+							if(scope.counter==0)
+							{
+								console.log("Inside last prev turn");
+								$(".button1").prop("disabled",true);
+								$(".button1").css("background","rgb(189, 183, 183)");
+								$(".button2").prop("disabled",false);
+								$(".button2").css("background","#EAEAEA");
+							}
+							else
+							{
+								$(".button1").prop("disabled",false);
+								$(".button1").css("background","#EAEAEA");
+							}
+						}
+						else
+							scope.counter=0;
+						
+						console.log("Counter in prev is:" +scope.counter);
+						$(".divStyle").css("color","red");
+						$(".divStyle").css("background","cyan");
+						
+							var mleft=-56*(scope.counter);
+							console.log("mleft in prev is:"+mleft);
+							$(".ulstyle").css("margin-left",mleft);
+
+					
+					}
+					
+					
+					
+					scope.next=function(){
+						console.log("Inside next function");
+						console.log("Counter value inside next is:" +scope.counter);
+						if((scope.counter==0)||(scope.counter<(scope.noOfButton-3)))
+						{
+							$(".button1").prop("disabled",false);
+							$(".button1").css("background","#EAEAEA");
+							scope.counter=scope.counter+1;
+								if(scope.counter==(scope.noOfButton-3))
+							{
+								console.log("Inside last next turn");
+								$(".button2").prop("disabled",true);
+								$(".button2").css("background","rgb(189, 183, 183)");
+								$(".button1").prop("disabled",false);
+								$(".button1").css("background","#EAEAEA");
+							}
+							else
+							{
+								$(".button2").prop("disabled",false);
+								$(".button2").css("background","#EAEAEA");
+							}
+						}
+						else
+							scope.counter=0;
+						
+						console.log("Counter is:" +scope.counter);
+						$(".divStyle").css("color","red");
+						$(".divStyle").css("background","cyan");
+						
+							var mleft=-56*scope.counter;
+							console.log("mleft is:"+mleft);
+							$(".ulstyle").css("margin-left",mleft);
+						
+					}
+					
+				  }
+				}
+			});
+		</script>
+		
+	</head>
+	<body ng-controller="paginateCtrl">
+		<h4>My pagination list</h4>
+		<ul ng-paginate>
+			<li ng-repeat="list in chosenList">{{list}}</li>
+		</ul>
+		
+		<div class="displayList">
+			<h4>The result is:</h4>
+		
+			<ul>
+				<li ng-repeat="list in chosenList">{{list}}</li>
+			</ul>
+		</div>
+	</body>
+</html>
